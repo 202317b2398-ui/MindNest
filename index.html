@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindNest - Teen Mental Wellness App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 28px;
+            background: black;
+            border-radius: 0 0 40px 40px;
+            z-index: 10;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .mood-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mood-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+        }
+
+        .mood-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+
+        .mood-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .meditation-item {
+            background: #f5f5f5;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .meditation-item:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .meditation-icon {
+            font-size: 32px;
+            margin-right: 16px;
+        }
+
+        .meditation-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .meditation-info p {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .journal-entry {
+            background: #fff3cd;
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .journal-date {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .journal-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .counselor-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .counselor-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+        }
+
+        .counselor-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .counselor-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 12px;
+        }
+
+        .counselor-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .counselor-title {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            padding: 14px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 16px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .secondary-button {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .secondary-button:hover {
+            background: #f5f5f5;
+        }
+
+        .bottom-nav {
+            height: 70px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: white;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 20px;
+            color: #999;
+        }
+
+        .nav-item.active {
+            color: #667eea;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+            position: absolute;
+            top: 24px;
+            left: 16px;
+            z-index: 5;
+        }
+
+        .text-input {
+            width: 100%;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-section {
+            margin-bottom: 24px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .faq-item {
+            background: #f5f5f5;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .faq-answer {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="notch"></div>
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>MindNest</span>
+            <span>⚡</span>
+        </div>
+
+        <!-- Screen 1: Welcome/Onboarding -->
+        <div class="screen active" id="screen1">
+            <div class="header">
+                <h1>🌟 MindNest</h1>
+                <p>Your Mental Wellness Companion</p>
+            </div>
+            <div class="content">
+                <div style="text-align: center; margin-top: 40px;">
+                    <div style="font-size: 80px; margin-bottom: 24px;">🧠</div>
+                    <h2 style="font-size: 24px; margin-bottom: 16px; color: #333;">Welcome to MindNest</h2>
+                    <p style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 32px;">
+                        A safe space designed just for teens to manage stress, anxiety, and emotional well-being.
+                    </p>
+                    <div style="background: #f0f0f0; border-radius: 16px; padding: 20px; margin-bottom: 24px; text-align: left;">
+                        <p style="font-size: 13px; margin-bottom: 12px;"><strong>✓ Mood Tracking</strong> - Understand your emotions</p>
+                        <p style="font-size: 13px; margin-bottom: 12px;"><strong>✓ Guided Meditations</strong> - Calm your mind</p>
+                        <p style="font-size: 13px; margin-bottom: 12px;"><strong>✓ Journal Therapy</strong> - Express yourself</p>
+                        <p style="font-size: 13px;"><strong>✓ Counselor Chat</strong> - Talk anonymously</p>
+                    </div>
+                </div>
+            </div>
+            <button class="button" style="margin: 16px 24px;" onclick="goToScreen(2)">Get Started</button>
+        </div>
+
+        <!-- Screen 2: Home Dashboard -->
+        <div class="screen" id="screen2">
+            <div class="header">
+                <h1>👋 Welcome Back</h1>
+                <p>How are you feeling today?</p>
+            </div>
+            <div class="content">
+                <div class="mood-grid">
+                    <div class="mood-card" onclick="goToScreen(3)">
+                        <div class="mood-emoji">😊</div>
+                        <div class="mood-label">Happy</div>
+                    </div>
+                    <div class="mood-card" onclick="goToScreen(3)">
+                        <div class="mood-emoji">😐</div>
+                        <div class="mood-label">Neutral</div>
+                    </div>
+                    <div class="mood-card" onclick="goToScreen(3)">
+                        <div class="mood-emoji">😟</div>
+                        <div class="mood-label">Anxious</div>
+                    </div>
+                    <div class="mood-card" onclick="goToScreen(3)">
+                        <div class="mood-emoji">😢</div>
+                        <div class="mood-label">Sad</div>
+                    </div>
+                </div>
+
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Quick Features</h3>
+                <div class="feature-card" onclick="goToScreen(4)">
+                    <div class="feature-icon">🧘</div>
+                    <div class="feature-title">Meditation</div>
+                    <div class="feature-desc">Relax with guided sessions</div>
+                </div>
+                <div class="feature-card" onclick="goToScreen(5)">
+                    <div class="feature-icon">📔</div>
+                    <div class="feature-title">Journal</div>
+                    <div class="feature-desc">Express your thoughts</div>
+                </div>
+                <div class="feature-card" onclick="goToScreen(6)">
+                    <div class="feature-icon">💬</div>
+                    <div class="feature-title">Talk to Counselor</div>
+                    <div class="feature-desc">Anonymous support 24/7</div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item active" onclick="goToScreen(2)">🏠</div>
+                <div class="nav-item" onclick="goToScreen(4)">🧘</div>
+                <div class="nav-item" onclick="goToScreen(5)">📔</div>
+                <div class="nav-item" onclick="goToScreen(7)">⭐</div>
+            </div>
+        </div>
+
+        <!-- Screen 3: Mood Check-in Confirmation -->
+        <div class="screen" id="screen3">
+            <div class="header">
+                <button class="back-button" onclick="goToScreen(2)">←</button>
+                <h1>Mood Check-in</h1>
+                <p>You've logged your mood</p>
+            </div>
+            <div class="content">
+                <div style="text-align: center; margin-top: 40px;">
+                    <div style="font-size: 72px; margin-bottom: 24px;">✅</div>
+                    <h2 style="font-size: 22px; color: #333; margin-bottom: 16px;">Great!</h2>
+                    <p style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 32px;">
+                        Thanks for checking in. Tracking your mood helps us understand you better and provide personalized support.
+                    </p>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-number">7</div>
+                            <div class="stat-label">Days Tracked</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">85%</div>
+                            <div class="stat-label">Consistency</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #999; margin-top: 24px;">Would you like to:</p>
+                </div>
+            </div>
+            <button class="button" style="margin: 16px 24px;" onclick="goToScreen(4)">Try a Meditation 🧘</button>
+            <button class="button secondary-button" style="margin: 0 24px 16px;" onclick="goToScreen(2)">Back to Home</button>
+        </div>
+
+        <!-- Screen 4: Meditation Library -->
+        <div class="screen" id="screen4">
+            <div class="header">
+                <button class="back-button" onclick="goToScreen(2)">←</button>
+                <h1>Meditations</h1>
+                <p>Find your inner peace</p>
+            </div>
+            <div class="content">
+                <div class="meditation-item" onclick="showAlert('Starting: Breathing Basics (5 min)')">
+                    <div class="meditation-icon">🌬️</div>
+                    <div class="meditation-info">
+                        <h3>Breathing Basics</h3>
+                        <p>5 min • Beginner</p>
+                    </div>
+                </div>
+
+                <div class="meditation-item" onclick="showAlert('Starting: Stress Relief (10 min)')">
+                    <div class="meditation-icon">🌊</div>
+                    <div class="meditation-info">
+                        <h3>Stress Relief</h3>
+                        <p>10 min • Intermediate</p>
+                    </div>
+                </div>
+
+                <div class="meditation-item" onclick="showAlert('Starting: Sleep Better (20 min)')">
+                    <div class="meditation-icon">😴</div>
+                    <div class="meditation-info">
+                        <h3>Sleep Better</h3>
+                        <p>20 min • Advanced</p>
+                    </div>
+                </div>
+
+                <div class="meditation-item" onclick="showAlert('Starting: Anxiety Release (8 min)')">
+                    <div class="meditation-icon">💆</div>
+                    <div class="meditation-info">
+                        <h3>Anxiety Release</h3>
+                        <p>8 min • Intermediate</p>
+                    </div>
+                </div>
+
+                <div class="meditation-item" onclick="showAlert('Starting: Focus Boost (7 min)')">
+                    <div class="meditation-icon">🎯</div>
+                    <div class="meditation-info">
+                        <h3>Focus Boost</h3>
+                        <p>7 min • Beginner</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="goToScreen(2)">🏠</div>
+                <div class="nav-item active" onclick="goToScreen(4)">🧘</div>
+                <div class="nav-item" onclick="goToScreen(5)">📔</div>
+                <div class="nav-item" onclick="goToScreen(7)">⭐</div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Journal -->
+        <div class="screen" id="screen5">
+            <div class="header">
+                <button class="back-button" onclick="goToScreen(2)">←</button>
+                <h1>My Journal</h1>
+                <p>Your safe space to express</p>
+            </div>
+            <div class="content">
+                <button class="button" style="margin-bottom: 16px;" onclick="goToScreen(5.5)">✍️ Write New Entry</button>
+
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Recent Entries</h3>
+
+                <div class="journal-entry">
+                    <div class="journal-date">📅 Today - 10:30 AM</div>
+                    <div class="journal-text">
+                        "Today was a productive day. I completed my assignments and spent time with friends. Feeling motivated!"
+                    </div>
+                </div>
+
+                <div class="journal-entry">
+                    <div class="journal-date">📅 Yesterday - 8:15 PM</div>
+                    <div class="journal-text">
+                        "Feeling a bit overwhelmed with exams. But talking to my counselor helped me see things differently."
+                    </div>
+                </div>
+
+                <div class="journal-entry">
+                    <div class="journal-date">📅 3 days ago - 7:00 PM</div>
+                    <div class="journal-text">
+                        "Had a great meditation session. Really helped calm my anxiety before the presentation."
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="goToScreen(2)">🏠</div>
+                <div class="nav-item" onclick="goToScreen(4)">🧘</div>
+                <div class="nav-item active" onclick="goToScreen(5)">📔</div>
+                <div class="nav-item" onclick="goToScreen(7)">⭐</div>
+            </div>
+        </div>
+
+        <!-- Screen 5.5: Write Journal Entry -->
+        <div class="screen" id="screen5.5">
+            <div class="header">
+                <button class="back-button" onclick="goToScreen(5)">←</button>
+                <h1>New Journal Entry</h1>
+                <p>Share your thoughts</p>
+            </div>
+            <div class="content">
+                <div class="input-section">
+                    <label class="input-label">How are you feeling?</label>
+                    <textarea class="text-input" style="resize: none; height: 120px;" placeholder="Write whatever's on your mind..."></textarea>
+                    <label class="input-label">Add a mood tag (optional)</label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="button secondary-button" style="margin: 0; padding: 8px 12px; font-size: 12px;">😊 Happy</button>
+                        <button class="button secondary-button" style="margin: 0; padding: 8px 12px; font-size: 12px;">😟 Anxious</button>
+                        <button class="button secondary-button" style="margin: 0; padding: 8px 12px; font-size: 12px;">😢 Sad</button>
+                        <button class="button secondary-button" style="margin: 0; padding: 8px 12px; font-size: 12px;">😴 Tired</button>
+                    </div>
+                </div>
+            </div>
+            <button class="button" style="margin: 16px 24px;" onclick="goToScreen(5); showAlert('Journal entry saved! 📝')">Save Entry</button>
+        </div>
+
+        <!-- Screen 6: Counselor Chat -->
+        <div class="screen" id="screen6">
+            <div class="header">
+                <button class="back-button" onclick="goToScreen(2)">←</button>
+                <h1>Counselors</h1>
+                <p>Anonymous support available</p>
+            </div>
+            <div class="content">
+                <h3 style="font-size: 14px; color: #667eea; font-weight: 600; margin-bottom: 12px;">🟢 Available Now</h3>
+
+                <div class="counselor-card" onclick="goToScreen(6.5)">
+                    <div class="counselor-header">
+                        <div class="counselor-avatar">👨‍⚕️</div>
+                        <div>
+                            <div class="counselor-name">Dr. Arjun</div>
+                            <div class="counselor-title">Licensed Counselor</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #666;">Specializes in teen anxiety & stress management</p>
+                </div>
+
+                <div class="counselor-card" onclick="goToScreen(6.5)">
+                    <div class="counselor-header">
+                        <div class="counselor-avatar">👩‍⚕️</div>
+                        <div>
+                            <div class="counselor-name">Ms. Priya</div>
+                            <div class="counselor-title">Therapist</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #666;">Expert in emotional wellness & self-discovery</p>
+                </div>
+
+                <h3 style="font-size: 14px; color: #667eea; font-weight: 600; margin-bottom: 12px; margin-top: 24px;">📅 Coming Soon</h3>
+
+                <div class="counselor-card">
+                    <div class="counselor-header">
+                        <div class="counselor-avatar">👨‍⚕️</div>
+                        <div>
+                            <div class="counselor-name">Mr. Vikram</div>
+                            <div class="counselor-title">Life Coach</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 13px; color: #666;">Available in 2 hours</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 6.5: Chat Interface -->
+        <div class="screen" id="screen6.5">
+            <div class="header">
+                <button class="back-button" onclick="goToScreen(6)">←</button>
+                <h1>Chat with Dr. Arjun</h1>
+                <p>Confidential conversation</p>
+            </div>
+            <div class="content" style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="background: #f0f0f0; border-radius: 12px; padding: 12px; width: 80%;">
+                    <p style="font-size: 13px; color: #333;">Hello! I'm here to listen. What's on your mind today?</p>
+                </div>
+                <div style="background: #667eea; color: white; border-radius: 12px; padding: 12px; width: 80%; margin-left: auto; text-align: right;">
+                    <p style="font-size: 13px;">I've been feeling really stressed about exams...</p>
+                </div>
+                <div style="background: #f0f0f0; border-radius: 12px; padding: 12px; width: 90%;">
+                    <p style="font-size: 13px; color: #333;">That's very common among students. Let me share some strategies that might help...</p>
+                </div>
+            </div>
+            <div style="padding: 16px; border-top: 1px solid #e0e0e0; display: flex; gap: 8px;">
+                <input type="text" class="text-input" style="margin: 0;" placeholder="Type your message...">
+                <button class="button" style="margin: 0; padding: 12px 16px;">➤</button>
+            </div>
+        </div>
+
+        <!-- Screen 7: Resources & Support -->
+        <div class="screen" id="screen7">
+            <div class="header">
+                <h1>Resources</h1>
+                <p>Learn & get support</p>
+            </div>
+            <div class="content">
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">📚 Helpful Guides</h3>
+
+                <div class="faq-item">
+                    <div class="faq-question">Understanding Anxiety</div>
+                    <div class="faq-answer">Learn what anxiety is, why it happens, and practical techniques to manage it effectively.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Sleep Tips for Students</div>
+                    <div class="faq-answer">Discover healthy sleep habits and techniques to improve your sleep quality and consistency.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">Stress Management</div>
+                    <div class="faq-answer">Explore proven strategies to manage stress during exams and challenging times.</div>
+                </div>
+
+                <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; margin-top: 20px;">🆘 Emergency Support</h3>
+
+                <div style="background: #fff3cd; border-left: 4px solid #ff6b6b; border-radius: 8px; padding: 16px;">
+                    <p style="font-size: 13px; font-weight: 600; color: #ff6b6b; margin-bottom: 8px;">Crisis Helpline</p>
+                    <p style="font-size: 14px; color: #333; font-weight: 600; margin-bottom: 8px;">📞 1800-234-5678</p>
+                    <p style="font-size: 12px; color: #666;">Available 24/7 for urgent support. Your call is confidential.</p>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <div class="nav-item" onclick="goToScreen(2)">🏠</div>
+                <div class="nav-item" onclick="goToScreen(4)">🧘</div>
+                <div class="nav-item" onclick="goToScreen(5)">📔</div>
+                <div class="nav-item active" onclick="goToScreen(7)">⭐</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goToScreen(screenNum) {
+            // Hide all screens
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
+            
+            // Show target screen
+            const targetScreen = document.getElementById('screen' + screenNum);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+            }
+        }
+
+        function showAlert(message) {
+            alert(message);
+        }
+    </script>
+</body>
+</html>
